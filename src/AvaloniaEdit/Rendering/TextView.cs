@@ -1059,7 +1059,7 @@ namespace AvaloniaEdit.Rendering
             var properties = new TextRunProperties
             {
                 FontSize = FontSize,
-                Typeface = new Typeface(TextBlock.GetFontFamily(this), TextBlock.GetFontWeight(this), TextBlock.GetFontStyle(this)),
+                Typeface = FontManager.Current.GetOrAddTypeface(TextBlock.GetFontFamily(this), TextBlock.GetFontWeight(this), TextBlock.GetFontStyle(this)),
                 ForegroundBrush = TextBlock.GetForeground(this),
                 CultureInfo = CultureInfo.CurrentCulture
             };
