@@ -193,18 +193,16 @@ namespace AvaloniaEdit.Text
         {
             var result = new double[StringRange.Length];
 
+            ushort[] glyphIndices = new ushort[1];
             for (var i = 0; i < StringRange.Length; i++)
             {
                 // TODO: is there a better way of getting glyph metrics?
                 var tf = Typeface;
-                var size = new FormattedText
-                {
-                    Text = StringRange[i].ToString(),
-                    Typeface = FontManager.Current.GetOrAddTypeface(tf.FontFamily, tf.Weight, tf.Style),
-                    FontSize = FontSize
-                }.Bounds.Size;
-                
-                result[i] = size.Width;
+                var typeface = FontManager.Current.GetOrAddTypeface(tf.FontFamily, tf.Weight, tf.Style).GlyphTypeface;
+                glyphIndices[0] = typeface.GetGlyph(StringRange[i]);
+                var glyphRun = new GlyphRun(typeface, FontSize, glyphIndices);
+
+                result[i] = glyphRun.Bounds.Width;
             }
 
             _glyphWidths = result;
