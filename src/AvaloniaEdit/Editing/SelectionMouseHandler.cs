@@ -394,10 +394,10 @@ namespace AvaloniaEdit.Editing
         {
             TextArea.Cursor = Cursor.Parse("IBeam");           
 
-            var pointer = e.GetPointerPoint(TextArea);
+            var clickInfo = e.GetCurrentPoint(TextArea);
 
             _mode = SelectionMode.None;
-            if (!e.Handled)
+            if (!e.Handled && clickInfo.Properties.IsLeftButtonPressed)
             {
                 var modifiers = e.KeyModifiers;
                 var shift = modifiers.HasFlag(KeyModifiers.Shift);
@@ -443,7 +443,7 @@ namespace AvaloniaEdit.Editing
                             TextArea.Selection = TextArea.Selection.StartSelectionOrSetEndpoint(oldPosition, TextArea.Caret.Position);
                         }
                     }
-                    else if(pointer.Properties.IsLeftButtonPressed && e.ClickCount == 1) // e.ClickCount == 1
+                    else if (clickInfo.Properties.IsLeftButtonPressed && e.ClickCount == 1) // e.ClickCount == 1
                     {
                         _mode = SelectionMode.Normal;
                         if (shift && !(TextArea.Selection is RectangleSelection))
@@ -612,7 +612,7 @@ namespace AvaloniaEdit.Editing
 
         private void TextArea_MouseMove(object sender, PointerEventArgs e)
         {
-            if (e.Handled)
+            if (e.Handled || !e.GetCurrentPoint(TextArea).Properties.IsLeftButtonPressed)
                 return;
             if (_mode == SelectionMode.Normal || _mode == SelectionMode.WholeWord || _mode == SelectionMode.WholeLine || _mode == SelectionMode.Rectangular)
             {
