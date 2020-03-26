@@ -20,7 +20,8 @@
                                Margin="30"
                                Foreground="White"
                                SyntaxHighlighting="XML"
-                               HorizontalScrollBarVisibility="Auto"
+                               HorizontalScrollBarVisibility="Disabled"
+                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                VerticalScrollBarVisibility="Visible"
                                TextBlock.FontSize="30" />
     </DockPanel>
