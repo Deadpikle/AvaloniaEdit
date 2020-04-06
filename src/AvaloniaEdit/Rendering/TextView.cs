@@ -1395,7 +1395,7 @@ namespace AvaloniaEdit.Rendering
 
         private void OnScrollChange()
         {
-            ((ILogicalScrollable)this).InvalidateScroll?.Invoke();
+            RaiseScrollInvalidated(EventArgs.Empty);
         }
 
         private bool _canVerticallyScroll = true;
@@ -1421,6 +1421,7 @@ namespace AvaloniaEdit.Rendering
         /// Occurs when the scroll offset has changed.
         /// </summary>
         public event EventHandler ScrollOffsetChanged;
+        public event EventHandler ScrollInvalidated;
 
         private void SetScrollOffset(Vector vector)
         {
@@ -1995,6 +1996,11 @@ namespace AvaloniaEdit.Rendering
             return null;
         }
 
+        public void RaiseScrollInvalidated(EventArgs e)
+        {
+            ScrollInvalidated?.Invoke(this, e);
+        }
+
         /// <summary>
         /// Gets/Sets the pen used to draw the column ruler.
         /// <seealso cref="TextEditorOptions.ShowColumnRuler"/>
@@ -2078,8 +2084,6 @@ namespace AvaloniaEdit.Rendering
         }
 
         bool ILogicalScrollable.IsLogicalScrollEnabled => true;
-
-        Action ILogicalScrollable.InvalidateScroll { get; set; }
 
         Size ILogicalScrollable.ScrollSize => new Size(10, 50);
 

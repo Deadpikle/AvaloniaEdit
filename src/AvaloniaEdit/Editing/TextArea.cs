@@ -667,7 +667,7 @@ namespace AvaloniaEdit.Editing
 
             Dispatcher.UIThread.InvokeAsync(() =>
             {
-                (this as ILogicalScrollable).InvalidateScroll?.Invoke();
+                RaiseScrollInvalidated(EventArgs.Empty);
             });
         }
 
@@ -1029,6 +1029,11 @@ namespace AvaloniaEdit.Editing
         /// Occurs when text inside the TextArea was copied.
         /// </summary>
         public event EventHandler<TextEventArgs> TextCopied;
+        public event EventHandler ScrollInvalidated
+        {
+            add { if (_logicalScrollable != null) _logicalScrollable.ScrollInvalidated += value; }
+            remove { if (_logicalScrollable != null) _logicalScrollable.ScrollInvalidated -= value; }
+        }
 
         internal void OnTextCopied(TextEventArgs e)
         {
@@ -1038,18 +1043,6 @@ namespace AvaloniaEdit.Editing
         public IList<RoutedCommandBinding> CommandBindings { get; } = new List<RoutedCommandBinding>();
 
         bool ILogicalScrollable.IsLogicalScrollEnabled => _logicalScrollable?.IsLogicalScrollEnabled ?? default(bool);
-
-        Action ILogicalScrollable.InvalidateScroll
-        {
-            get => _logicalScrollable?.InvalidateScroll;
-            set
-            {
-                if (_logicalScrollable != null)
-                {
-                    _logicalScrollable.InvalidateScroll = value;
-                }
-            }
-        }
 
         Size ILogicalScrollable.ScrollSize => _logicalScrollable?.ScrollSize ?? default(Size);
 
@@ -1100,6 +1093,11 @@ namespace AvaloniaEdit.Editing
 
         IControl ILogicalScrollable.GetControlInDirection(NavigationDirection direction, IControl from)
             => _logicalScrollable?.GetControlInDirection(direction, from);
+
+        public void RaiseScrollInvalidated(EventArgs e)
+        {
+            _logicalScrollable?.RaiseScrollInvalidated(e);
+        }
     }
 
     /// <summary>
