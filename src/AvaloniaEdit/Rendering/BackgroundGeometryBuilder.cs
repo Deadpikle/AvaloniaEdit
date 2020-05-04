@@ -26,6 +26,8 @@ using AvaloniaEdit.Editing;
 using AvaloniaEdit.Utils;
 using Avalonia.Media;
 using Avalonia.Media.TextFormatting;
+using System.Text;
+using Avalonia.Controls.Shapes;
 
 namespace AvaloniaEdit.Rendering
 {
@@ -179,6 +181,19 @@ namespace AvaloniaEdit.Rendering
             return ProcessTextLines(textView, line, startVc, endVc);
         }
 
+        public static string GetStringFromTextLine(TextLine line)
+        {
+            var sb = new StringBuilder();
+            foreach (var run in line.TextRuns)
+            {
+                foreach (var charItem in run.Text)
+                {
+                    sb.Append(charItem);
+                }
+            }
+            return sb.ToString();
+        }
+
         private static IEnumerable<Rect> ProcessTextLines(TextView textView, VisualLine visualLine, int segmentStartVc, int segmentEndVc)
         {
             var lastTextLine = visualLine.TextLines.Last();
@@ -190,11 +205,14 @@ namespace AvaloniaEdit.Rendering
                 var y = visualLine.GetTextLineVisualYPosition(line, VisualYPosition.LineTop);
                 var visualStartCol = visualLine.GetTextLineVisualStartColumn(line);
                 var visualEndCol = visualStartCol + line.Text.Length;
-                if (line == lastTextLine)
+                var str = GetStringFromTextLine(line);
+                var whitespaceLength = (Math.Abs(str.Length - str.TrimEnd().Length));
+                if (line == lastTextLine && whitespaceLength == 1)
                     visualEndCol -= 1; // 1 position for the TextEndOfParagraph
-                                       // TODO: ?
-                                       //else
-                                       //	visualEndCol -= line.TrailingWhitespaceLength;
+                else
+                {
+                    visualEndCol -= (Math.Abs(str.Length - str.TrimEnd().Length));
+                }
 
                 if (segmentEndVc < visualStartCol)
                     break;
@@ -210,25 +228,31 @@ namespace AvaloniaEdit.Rendering
                     // We need to return a rectangle to ensure empty lines are still visible
                     var pos = visualLine.GetTextLineVisualXPosition(line, segmentStartVcInLine);
                     pos -= scrollOffset.X;
-                    var text = line.Text.ToString();
+                    var text = GetStringFromTextLine(line);
                     var trailingWhitespaceLength = text.Length - text.TrimEnd().Length;
                     // The following special cases are necessary to get rid of empty rectangles at the end of a TextLine if "Show Spaces" is active.
                     // If not excluded once, the same rectangle is calculated (and added) twice (since the offset could be mapped to two visual positions; end/start of line), if there is no trailing whitespace.
                     // Skip this TextLine segment, if it is at the end of this line and this line is not the last line of the VisualLine and the selection continues and there is no trailing whitespace.
                     if (segmentEndVcInLine == visualEndCol && i < visualLine.TextLines.Count - 1 && segmentEndVc > segmentEndVcInLine && trailingWhitespaceLength == 0)
                         continue;
-                    text = visualLine.TextLines[i - 1].Text.ToString();
-                    trailingWhitespaceLength = text.Length - text.TrimEnd().Length;
-                    if (segmentStartVcInLine == visualStartCol && i > 0 && segmentStartVc < segmentStartVcInLine && trailingWhitespaceLength == 0)
-                        continue;
+                    if (i > 0)
+                    {
+                        text = GetStringFromTextLine(visualLine.TextLines[i - 1]);
+                        trailingWhitespaceLength = text.Length - text.TrimEnd().Length;
+                        if (segmentStartVcInLine == visualStartCol && i > 0 && segmentStartVc < segmentStartVcInLine && trailingWhitespaceLength == 0)
+                            continue;
+                    }
                     lastRect = new Rect(pos, y, textView.EmptyLineSelectionWidth, line.LineMetrics.Size.Height);
                 }
                 else
                 {
                     if (segmentStartVcInLine <= visualEndCol)
                     {
+
                         //TODO: var b = line.GetTextBounds(segmentStartVcInLine, segmentEndVcInLine - segmentStartVcInLine);
-                        var b = new Rect();
+
+                        //var b = new Rect(0, 0, line.LineMetrics.Size.Width, line.LineMetrics.Size.Height);
+                        var b = GetTextBounds(line, segmentStartVcInLine, segmentEndVcInLine - segmentStartVcInLine);
                         var left = b.X - scrollOffset.X;
                         var right = b.Right - scrollOffset.X;
                         if (!lastRect.IsEmpty)
@@ -258,6 +282,7 @@ namespace AvaloniaEdit.Rendering
                         left = line == lastTextLine ? line.LineMetrics.Size.Width : line.LineMetrics.Size.Width; // TODO: uhoh, need to know diff between with whitespace and without....
                     }
                     // TODO: !!!!!!!!!!!!!!!!!! SCROLL !!!!!!!!!!!!!!!!!!
+
                     //if (line != lastTextLine || segmentEndVC == int.MaxValue) {
                     //	// If word-wrap is enabled and the segment continues into the next line,
                     //	// or if the extendToFullWidthAtLineEnd option is used (segmentEndVC == int.MaxValue),
@@ -288,6 +313,49 @@ namespace AvaloniaEdit.Rendering
                 else
                     yield return lastRect;
             }
+        }
+
+        //
+        // Summary:
+        //     Gets an array of bounding rectangles that represent the range of characters within
+        //     a text line.
+        //
+        // Parameters:
+        //   firstTextSourceCharacterIndex:
+        //     The index of first character of specified range.
+        //
+        //   textLength:
+        //     The number of characters of the specified range.
+        //
+        // Returns:
+        //     A list of System.Windows.Media.TextFormatting.TextBounds objects representing
+        //     the bounding rectangle.
+        public static Rect GetTextBounds(TextLine line, int firstIndex, int textLength)
+        {
+			//foreach (TextBounds b in line.GetTextBounds(segmentStartVCInLine, segmentEndVCInLine - segmentStartVCInLine)) {
+            if (textLength == 0) throw new ArgumentOutOfRangeException(nameof(textLength));
+
+            if (textLength < 0)
+            {
+                firstIndex += textLength;
+                textLength = -textLength;
+            }
+            //Console.WriteLine("{0} -> {1}", firstIndex, textLength);
+            /*if (firstIndex < FirstIndex)
+            {
+                textLength += firstIndex - FirstIndex;
+                firstIndex = FirstIndex;
+            }
+
+            if (firstIndex + textLength > FirstIndex + Length)
+            {
+                textLength = FirstIndex + Length - firstIndex;
+            }*/
+
+            var distance = line.GetDistanceFromCharacterHit(new CharacterHit(firstIndex, 0));// GetDistanceFromCharacter(firstIndex, 0);
+            var distanceToLast = line.GetDistanceFromCharacterHit(new CharacterHit(firstIndex + textLength, 0));
+
+            return new Rect(distance, 0.0, distanceToLast - distance, line.LineMetrics.Size.Height);
         }
 
         private readonly PathFigures _figures = new PathFigures();
