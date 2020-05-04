@@ -21,6 +21,7 @@ using System.Diagnostics.CodeAnalysis;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
+using Avalonia.Media.TextFormatting;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.Text;
 using AvaloniaEdit.Utils;
@@ -113,11 +114,10 @@ namespace AvaloniaEdit.Rendering
             }
             if (ShowBoxForControlCharacters && char.IsControl(c))
             {
-                var p = CurrentContext.GlobalTextRunProperties.Clone();
-                p.ForegroundBrush = Brushes.White;
                 var textFormatter = TextFormatterFactory.Create();
+                var textStyle = new TextStyle(CurrentContext.GlobalTextRunProperties.TextFormat.Typeface, foreground: Brushes.White);
                 var text = FormattedTextElement.PrepareText(textFormatter,
-                    TextUtilities.GetControlCharacterName(c), p);
+                    TextUtilities.GetControlCharacterName(c), textStyle);
                 return new SpecialCharacterBoxElement(text);
             }
             return null;
@@ -158,7 +158,7 @@ namespace AvaloniaEdit.Rendering
                 if (startVisualColumn == VisualColumn)
                     return new TabGlyphRun(this, TextRunProperties);
                 if (startVisualColumn == VisualColumn + 1)
-                    return new TextCharacters("\t", TextRunProperties);
+                    return new TextCharacters(new Avalonia.Utility.ReadOnlySlice<char>(new ReadOnlyMemory<char>("\t".ToCharArray())), TextRunProperties);
                 throw new ArgumentOutOfRangeException(nameof(startVisualColumn));
             }
 
@@ -179,24 +179,24 @@ namespace AvaloniaEdit.Rendering
         {
             private readonly TabTextElement _element;
 
-            public TabGlyphRun(TabTextElement element, TextRunProperties properties)
+            public TabGlyphRun(TabTextElement element, TextStyle properties)
             {
-                Properties = properties ?? throw new ArgumentNullException(nameof(properties));
+                Properties = properties;
                 _element = element;
             }
 
             public override bool HasFixedSize => true;
 
-            public override StringRange StringRange => default(StringRange);
+            public StringRange StringRange => default(StringRange);
 
-            public override int Length => 1;
+            public int Length => 1;
 
-            public override TextRunProperties Properties { get; }
+            public TextStyle Properties { get; }
 
             public override Size GetSize(double remainingParagraphWidth)
             {
-                var width = Math.Min(0, _element.Text.WidthIncludingTrailingWhitespace - 1);
-                return new Size(width, _element.Text.Height);
+                var width = Math.Min(0, _element.Text.LineMetrics.Size.Width - 1);
+                return new Size(width, _element.Text.LineMetrics.Size.Height);
             }
 
             public override Rect ComputeBoundingBox()
@@ -206,8 +206,8 @@ namespace AvaloniaEdit.Rendering
 
             public override void Draw(DrawingContext drawingContext, Point origin)
             {
-                origin = origin.WithY(origin.Y - _element.Text.Baseline);
-                _element.Text.Draw(drawingContext, origin);
+                origin = origin.WithY(origin.Y - _element.Text.LineMetrics.BaselineOrigin.Y);
+                _element.Text.Draw(drawingContext.PlatformImpl, origin);
             }
         }
 
@@ -232,7 +232,7 @@ namespace AvaloniaEdit.Rendering
 				DarkGrayBrush = new ImmutableSolidColorBrush(Color.FromArgb(200, 128, 128, 128));
             }
 
-            public SpecialCharacterTextRun(FormattedTextElement element, TextRunProperties properties)
+            public SpecialCharacterTextRun(FormattedTextElement element, TextStyle properties)
                 : base(element, properties)
             {
             }

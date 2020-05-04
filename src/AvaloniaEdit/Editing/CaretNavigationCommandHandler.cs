@@ -25,6 +25,7 @@ using AvaloniaEdit.Rendering;
 using AvaloniaEdit.Text;
 using AvaloniaEdit.Utils;
 using Avalonia.Input;
+using Avalonia.Media.TextFormatting;
 
 namespace AvaloniaEdit.Editing
 {
@@ -267,7 +268,9 @@ namespace AvaloniaEdit.Editing
 
         private static TextViewPosition GetEndOfLineCaretPosition(VisualLine visualLine, TextLine textLine)
         {
-            var newVisualCol = visualLine.GetTextLineVisualStartColumn(textLine) + textLine.Length - textLine.TrailingWhitespaceLength;
+            var text = textLine.Text.ToString();
+            var trailingWhitespaceLength = text.Length - text.TrimEnd().Length;
+            var newVisualCol = visualLine.GetTextLineVisualStartColumn(textLine) + textLine.Text.Length - trailingWhitespaceLength;
             var pos = visualLine.GetTextViewPosition(newVisualCol);
             pos.IsAtEndOfLine = true;
             return pos;
@@ -412,10 +415,10 @@ namespace AvaloniaEdit.Editing
 
                 // prevent wrapping to the next line; TODO: could 'IsAtEnd' help here?
                 var targetLineStartCol = targetVisualLine.GetTextLineVisualStartColumn(targetLine);
-                if (newVisualColumn >= targetLineStartCol + targetLine.Length)
+                if (newVisualColumn >= targetLineStartCol + targetLine.Text.Length)
                 {
                     if (newVisualColumn <= targetVisualLine.VisualLength)
-                        newVisualColumn = targetLineStartCol + targetLine.Length - 1;
+                        newVisualColumn = targetLineStartCol + targetLine.Text.Length - 1;
                 }
                 return targetVisualLine.GetTextViewPosition(newVisualColumn);
             }

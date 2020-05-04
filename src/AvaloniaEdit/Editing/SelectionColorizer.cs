@@ -63,7 +63,8 @@ namespace AvaloniaEdit.Editing
                     startColumn, endColumn,
                     element =>
                     {
-                        element.TextRunProperties.ForegroundBrush = _textArea.SelectionForeground;
+                        element.TextRunProperties = new Avalonia.Media.TextFormatting.TextStyle(element.TextRunProperties.TextFormat,
+                            _textArea.SelectionForeground, element.TextRunProperties.TextDecorations);
                     });
             }
         }

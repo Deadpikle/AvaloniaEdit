@@ -17,6 +17,8 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System.Collections.Generic;
+using Avalonia.Media;
+using Avalonia.Media.TextFormatting;
 using AvaloniaEdit.Text;
 using AvaloniaEdit.Utils;
 
@@ -25,7 +27,7 @@ namespace AvaloniaEdit.Rendering
     internal sealed class TextViewCachedElements
     {
         private Dictionary<string, TextLine> _nonPrintableCharacterTexts;
-        private TextFormatter _formatter;
+        private Text.TextFormatter _formatter;
 
         public TextLine GetTextForNonPrintableCharacter(string text, ITextRunConstructionContext context)
         {
@@ -39,8 +41,8 @@ namespace AvaloniaEdit.Rendering
                 return textLine;
             }
 
-            var properties = context.GlobalTextRunProperties.Clone();
-            properties.ForegroundBrush = context.TextView.NonPrintableCharacterBrush;
+            var properties = context.GlobalTextRunProperties;
+            properties = new TextStyle(properties.TextFormat, context.TextView.NonPrintableCharacterBrush, properties.TextDecorations);
             if (_formatter == null)
             {
                 _formatter = TextFormatterFactory.Create();

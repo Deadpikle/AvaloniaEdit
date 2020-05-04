@@ -260,7 +260,8 @@ namespace AvaloniaEdit.Highlighting
             {
                 var b = color.Foreground.GetBrush(context);
                 if (b != null)
-                    element.TextRunProperties.ForegroundBrush = b;
+                    element.TextRunProperties = new Avalonia.Media.TextFormatting.TextStyle(element.TextRunProperties.TextFormat,
+                        b, element.TextRunProperties.TextDecorations);
             }
             if (color.Background != null)
             {
@@ -270,12 +271,14 @@ namespace AvaloniaEdit.Highlighting
             }
             if (color.FontStyle != null || color.FontWeight != null)
             {
-                var tf = element.TextRunProperties.Typeface;
-                element.TextRunProperties.Typeface = new Avalonia.Media.Typeface(
-                    tf.FontFamily,
-                    color.FontWeight ?? tf.Weight,
-                    color.FontStyle ?? tf.Style
-                );
+                var tf = element.TextRunProperties.TextFormat.Typeface;
+                var typeface = new Avalonia.Media.Typeface(tf.FontFamily,
+                        color.FontWeight ?? tf.Weight,
+                        color.FontStyle ?? tf.Style);
+                element.TextRunProperties = new Avalonia.Media.TextFormatting.TextStyle(
+                    typeface, element.TextRunProperties.TextFormat.FontRenderingEmSize,
+                    element.TextRunProperties.Foreground, 
+                    element.TextRunProperties.TextDecorations);
             }
             //if(color.Underline ?? false)
             //	element.TextRunProperties.SetTextDecorations(TextDecorations.Underline);

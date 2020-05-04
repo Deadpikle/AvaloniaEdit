@@ -24,6 +24,7 @@ using AvaloniaEdit.Text;
 using AvaloniaEdit.Utils;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Media.TextFormatting;
 
 namespace AvaloniaEdit.Folding
 {
@@ -153,8 +154,8 @@ namespace AvaloniaEdit.Folding
                 var title = foldingSection.Title;
                 if (string.IsNullOrEmpty(title))
                     title = "...";
-                var p = CurrentContext.GlobalTextRunProperties.Clone();
-                p.ForegroundBrush = TextBrush;
+                var p = CurrentContext.GlobalTextRunProperties;
+                p = new TextStyle(p.TextFormat, Brushes.White, p.TextDecorations);
                 var textFormatter = TextFormatterFactory.Create();
                 var text = FormattedTextElement.PrepareText(textFormatter, title, p);
                 return new FoldingLineElement(foldingSection, text, foldedUntil - offset, TextBrush);
@@ -193,7 +194,7 @@ namespace AvaloniaEdit.Folding
         {
             private readonly IBrush _textBrush;
 
-            public FoldingLineTextRun(FormattedTextElement element, TextRunProperties properties, IBrush textBrush)
+            public FoldingLineTextRun(FormattedTextElement element, TextStyle properties, IBrush textBrush)
                 : base(element, properties)
             {
                 _textBrush = textBrush;

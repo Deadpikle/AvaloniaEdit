@@ -25,6 +25,7 @@ using AvaloniaEdit.Document;
 using AvaloniaEdit.Editing;
 using AvaloniaEdit.Utils;
 using Avalonia.Media;
+using Avalonia.Media.TextFormatting;
 
 namespace AvaloniaEdit.Rendering
 {
@@ -188,7 +189,7 @@ namespace AvaloniaEdit.Rendering
                 var line = visualLine.TextLines[i];
                 var y = visualLine.GetTextLineVisualYPosition(line, VisualYPosition.LineTop);
                 var visualStartCol = visualLine.GetTextLineVisualStartColumn(line);
-                var visualEndCol = visualStartCol + line.Length;
+                var visualEndCol = visualStartCol + line.Text.Length;
                 if (line == lastTextLine)
                     visualEndCol -= 1; // 1 position for the TextEndOfParagraph
                                        // TODO: ?
@@ -209,26 +210,31 @@ namespace AvaloniaEdit.Rendering
                     // We need to return a rectangle to ensure empty lines are still visible
                     var pos = visualLine.GetTextLineVisualXPosition(line, segmentStartVcInLine);
                     pos -= scrollOffset.X;
+                    var text = line.Text.ToString();
+                    var trailingWhitespaceLength = text.Length - text.TrimEnd().Length;
                     // The following special cases are necessary to get rid of empty rectangles at the end of a TextLine if "Show Spaces" is active.
                     // If not excluded once, the same rectangle is calculated (and added) twice (since the offset could be mapped to two visual positions; end/start of line), if there is no trailing whitespace.
                     // Skip this TextLine segment, if it is at the end of this line and this line is not the last line of the VisualLine and the selection continues and there is no trailing whitespace.
-                    if (segmentEndVcInLine == visualEndCol && i < visualLine.TextLines.Count - 1 && segmentEndVc > segmentEndVcInLine && line.TrailingWhitespaceLength == 0)
+                    if (segmentEndVcInLine == visualEndCol && i < visualLine.TextLines.Count - 1 && segmentEndVc > segmentEndVcInLine && trailingWhitespaceLength == 0)
                         continue;
-                    if (segmentStartVcInLine == visualStartCol && i > 0 && segmentStartVc < segmentStartVcInLine && visualLine.TextLines[i - 1].TrailingWhitespaceLength == 0)
+                    text = visualLine.TextLines[i - 1].Text.ToString();
+                    trailingWhitespaceLength = text.Length - text.TrimEnd().Length;
+                    if (segmentStartVcInLine == visualStartCol && i > 0 && segmentStartVc < segmentStartVcInLine && trailingWhitespaceLength == 0)
                         continue;
-                    lastRect = new Rect(pos, y, textView.EmptyLineSelectionWidth, line.Height);
+                    lastRect = new Rect(pos, y, textView.EmptyLineSelectionWidth, line.LineMetrics.Size.Height);
                 }
                 else
                 {
                     if (segmentStartVcInLine <= visualEndCol)
                     {
-                        var b = line.GetTextBounds(segmentStartVcInLine, segmentEndVcInLine - segmentStartVcInLine);
+                        //TODO: var b = line.GetTextBounds(segmentStartVcInLine, segmentEndVcInLine - segmentStartVcInLine);
+                        var b = new Rect();
                         var left = b.X - scrollOffset.X;
                         var right = b.Right - scrollOffset.X;
                         if (!lastRect.IsEmpty)
                             yield return lastRect;
                         // left>right is possible in RTL languages
-                        lastRect = new Rect(Math.Min(left, right), y, Math.Abs(right - left), line.Height);
+                        lastRect = new Rect(Math.Min(left, right), y, Math.Abs(right - left), line.LineMetrics.Size.Height);
                     }
                 }
                 // If the segment ends in virtual space, extend the last rectangle with the rectangle the portion of the selection
@@ -249,7 +255,7 @@ namespace AvaloniaEdit.Rendering
                         // For word-wrapped lines, visualEndCol doesn't include the whitespace hidden by the wrap,
                         // so we'll need to include it here.
                         // For the last line, visualEndCol already includes the whitespace.
-                        left = line == lastTextLine ? line.WidthIncludingTrailingWhitespace : line.Width;
+                        left = line == lastTextLine ? line.LineMetrics.Size.Width : line.LineMetrics.Size.Width; // TODO: uhoh, need to know diff between with whitespace and without....
                     }
                     // TODO: !!!!!!!!!!!!!!!!!! SCROLL !!!!!!!!!!!!!!!!!!
                     //if (line != lastTextLine || segmentEndVC == int.MaxValue) {
@@ -261,7 +267,7 @@ namespace AvaloniaEdit.Rendering
 
                     right = visualLine.GetTextLineVisualXPosition(lastTextLine, segmentEndVc);
                     //}
-                    var extendSelection = new Rect(Math.Min(left, right), y, Math.Abs(right - left), line.Height);
+                    var extendSelection = new Rect(Math.Min(left, right), y, Math.Abs(right - left), line.LineMetrics.Size.Height);
                     if (!lastRect.IsEmpty)
                     {
                         if (extendSelection.Intersects(lastRect))

@@ -20,6 +20,7 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Media.TextFormatting;
 using AvaloniaEdit.Text;
 
 namespace AvaloniaEdit.Rendering
@@ -68,13 +69,13 @@ namespace AvaloniaEdit.Rendering
         /// <param name="length">The length of the TextRun.</param>
         /// <param name="properties">The <see cref="TextRunProperties"/> to use.</param>
         /// <param name="element">The <see cref="IControl"/> to display.</param>
-        public InlineObjectRun(int length, TextRunProperties properties, IControl element)
+        public InlineObjectRun(int length, TextStyle properties, IControl element)
         {
             if (length <= 0)
                 throw new ArgumentOutOfRangeException(nameof(length), length, "Value must be positive");
 
             Length = length;
-            Properties = properties ?? throw new ArgumentNullException(nameof(properties));
+            Properties = properties;
             Element = element ?? throw new ArgumentNullException(nameof(element));
         }
 
@@ -93,13 +94,13 @@ namespace AvaloniaEdit.Rendering
         public override bool HasFixedSize => true;
 
         /// <inheritdoc/>
-        public override StringRange StringRange => default(StringRange);
+        public StringRange StringRange => default(StringRange);
 
         /// <inheritdoc/>
-        public override int Length { get; }
+        public int Length { get; }
 
         /// <inheritdoc/>
-        public override TextRunProperties Properties { get; }
+        public TextStyle Properties { get; }
 
         public override Size GetSize(double remainingParagraphWidth)
         {

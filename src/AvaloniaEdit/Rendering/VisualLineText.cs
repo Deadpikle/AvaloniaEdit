@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using Avalonia.Media.TextFormatting;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.Text;
 
@@ -60,7 +61,7 @@ namespace AvaloniaEdit.Rendering
 			
 			var relativeOffset = startVisualColumn - VisualColumn;
 			var text = context.GetText(context.VisualLine.FirstDocumentLine.Offset + RelativeTextOffset + relativeOffset, DocumentLength - relativeOffset);
-			return new TextCharacters(text.Text, text.Offset, text.Count, TextRunProperties);
+			return new TextCharacters(new Avalonia.Utility.ReadOnlySlice<char>(new ReadOnlyMemory<char>(text.GetSegmentText().ToCharArray())), TextRunProperties);
 		}
 		
 		/// <inheritdoc/>
@@ -78,7 +79,7 @@ namespace AvaloniaEdit.Rendering
 			
 			var relativeOffset = visualColumnLimit - VisualColumn;
 			var text = context.GetText(context.VisualLine.FirstDocumentLine.Offset + RelativeTextOffset, relativeOffset);
-			var range = new StringRange(text.Text, text.Offset, text.Count);
+			var range = new StringRange(text.GetSegmentText(), text.Offset, text.Count);
 			return range;
 		}
 		

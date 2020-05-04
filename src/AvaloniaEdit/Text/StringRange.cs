@@ -21,6 +21,11 @@ namespace AvaloniaEdit.Text
             Length = length;
         }
 
+        public string GetSegmentText()
+        {
+            return String.Substring(OffsetToFirstChar, Length);
+        }
+
         public override string ToString()
         {
             if (String == null) return string.Empty;

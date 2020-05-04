@@ -1,6 +1,8 @@
 using System;
 using Avalonia;
 using Avalonia.Media;
+using Avalonia.Media.TextFormatting;
+using Avalonia.Utility;
 
 namespace AvaloniaEdit.Text
 {
@@ -62,22 +64,22 @@ namespace AvaloniaEdit.Text
             }
         }
 
-        public Typeface Typeface => TextRun.Properties.Typeface;
+        public Typeface Typeface => TextRun.Style.TextFormat.Typeface;
 
-        public double FontSize => TextRun.Properties.FontSize;
+        public double FontSize => TextRun.Style.TextFormat.FontRenderingEmSize;
 
         private TextLineRun()
         {
         }
 
-        public static TextLineRun Create(TextSource textSource, int index, int firstIndex, double lengthLeft)
+        public static TextLineRun Create(ITextSource textSource, int index, int firstIndex, double lengthLeft)
         {
             var textRun = textSource.GetTextRun(index);
-            var stringRange = textRun.GetStringRange();
+            var stringRange = new StringRange(textRun.Text.ToString(), 0, textRun.Text.Length);// textRun.GetStringRange();
             return Create(textSource, stringRange, textRun, index, lengthLeft);
         }
 
-        private static TextLineRun Create(TextSource textSource, StringRange stringRange, TextRun textRun, int index, double widthLeft)
+        private static TextLineRun Create(ITextSource textSource, StringRange stringRange, TextRun textRun, int index, double widthLeft)
         {
             if (textRun is TextCharacters)
             {
@@ -87,13 +89,13 @@ namespace AvaloniaEdit.Text
 
             if (textRun is TextEndOfLine)
             {
-                return new TextLineRun(textRun.Length, textRun) { IsEnd = true };
+                return new TextLineRun(textRun.Text.Length, textRun) { IsEnd = true };
             }
 
             if (textRun is TextEmbeddedObject embeddedObject)
             {
                 double width = embeddedObject.GetSize(double.PositiveInfinity).Width;
-                return new TextLineRun(textRun.Length, textRun) {
+                return new TextLineRun(textRun.Text.Length, textRun) {
                     IsEmbedded = true,
                     _glyphWidths = new double[] { width },
                     // Embedded objects must propagate their width to the container.
@@ -105,7 +107,7 @@ namespace AvaloniaEdit.Text
             throw new NotSupportedException("Unsupported run type");
         }
 
-        private static TextLineRun CreateRunForEol(TextSource textSource, StringRange stringRange, TextRun textRun, int index)
+        private static TextLineRun CreateRunForEol(ITextSource textSource, StringRange stringRange, TextRun textRun, int index)
         {
             switch (stringRange[0])
             {
@@ -118,11 +120,10 @@ namespace AvaloniaEdit.Text
                     else if (stringRange.Length == 1)
                     {
                         var nextRun = textSource.GetTextRun(index + 1);
-                        var range = nextRun.GetStringRange();
-                        if (range.Length > 0 && range[0] == '\n')
+                        if (nextRun.Text.Length > 0 && nextRun.Text[0] == '\n')
                         {
-                            var eolRun = new TextCharacters(NewlineString, textRun.Properties);
-                            return new TextLineRun(eolRun.Length, eolRun) { IsEnd = true };
+                            var eolRun = new TextCharacters(new ReadOnlySlice<char>(new ReadOnlyMemory<char>(NewlineString.ToCharArray())), textRun.Style);
+                            return new TextLineRun(eolRun.Text.Length, eolRun) { IsEnd = true };
                         }
                     }
 
@@ -138,13 +139,13 @@ namespace AvaloniaEdit.Text
 
         private static TextLineRun CreateRunForTab(TextRun textRun)
         {
-            var spaceRun = new TextCharacters(" ", textRun.Properties);
-            var stringRange = spaceRun.StringRange;
+            var spaceRun = new TextCharacters(new ReadOnlySlice<char>(new ReadOnlyMemory<char>(" ".ToCharArray())), textRun.Style);
+            var stringRange = new StringRange(spaceRun.Text.ToString(), 0, spaceRun.Text.Length);
             var run = new TextLineRun(1, spaceRun)
             {
                 IsTab = true,
                 StringRange = stringRange,
-                // TODO: get from para props
+                // TODO: get width from para props/glyph
                 Width = 40
             };
 
@@ -159,7 +160,7 @@ namespace AvaloniaEdit.Text
             {
                 StringRange = stringRange,
                 TextRun = textRun,
-                Length = textRun.Length
+                Length = textRun.Text.Length
             };
 
             var tf = run.Typeface;
@@ -235,13 +236,12 @@ namespace AvaloniaEdit.Text
 
             if (_formattedText != null && drawingContext != null)
             {
-                if (TextRun.Properties.BackgroundBrush != null)
+               /* if (TextRun.Properties.BackgroundBrush != null) // TODO: background
                 {
                     var bounds = new Rect(x, y, _formattedTextSize.Width, _formattedTextSize.Height);
                     drawingContext.FillRectangle(TextRun.Properties.BackgroundBrush, bounds);
-                }
-
-                drawingContext.DrawText(TextRun.Properties.ForegroundBrush, 
+                } */
+                drawingContext.DrawText(TextRun.Style.Foreground, 
                     new Point(x, y), _formattedText);
             }
         }

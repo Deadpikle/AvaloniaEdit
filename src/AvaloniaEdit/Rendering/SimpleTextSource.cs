@@ -17,11 +17,13 @@
 // DEALINGS IN THE SOFTWARE.
 
 using Avalonia.Media.TextFormatting;
+using Avalonia.Utility;
 using AvaloniaEdit.Text;
+using System;
 
 namespace AvaloniaEdit.Rendering
 {
-    internal sealed class SimpleTextSource : TextSource
+    internal sealed class SimpleTextSource : ITextSource
 	{
 	    private readonly string _text;
 	    private readonly TextStyle _properties;
@@ -31,12 +33,12 @@ namespace AvaloniaEdit.Rendering
 			_text = text;
 			_properties = properties;
 		}
-		
-		public override Avalonia.Media.TextFormatting.TextRun GetTextRun(int characterIndex)
+
+		public TextRun GetTextRun(int characterIndex)
 		{
 			if (characterIndex < _text.Length)
-				return new Avalonia.Media.TextFormatting.TextCharacters(_text, _properties);
-		    return new TextEndOfParagraph(1);
+				return new TextCharacters(new ReadOnlySlice<char>(new ReadOnlyMemory<char>(_text.ToCharArray())), _properties);
+			return new TextEndOfParagraph();
 		}
 	}
 }

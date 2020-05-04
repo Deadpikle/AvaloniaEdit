@@ -19,6 +19,7 @@
 using System;
 using Avalonia;
 using Avalonia.Media;
+using Avalonia.Media.TextFormatting;
 using AvaloniaEdit.Text;
 using AvaloniaEdit.Utils;
 
@@ -77,24 +78,17 @@ namespace AvaloniaEdit.Rendering
         /// <summary>
         /// Constructs a TextLine from a simple text.
         /// </summary>
-        internal static TextLine PrepareText(TextFormatter formatter, string text, TextRunProperties properties)
+        internal static TextLine PrepareText(Text.TextFormatter formatter, string text, TextStyle properties)
         {
             if (formatter == null)
                 throw new ArgumentNullException(nameof(formatter));
             if (text == null)
                 throw new ArgumentNullException(nameof(text));
-            if (properties == null)
-                throw new ArgumentNullException(nameof(properties));
             return formatter.FormatLine(
                 new SimpleTextSource(text, properties),
                 0,
                 32000,
-                new TextParagraphProperties
-                {
-                    DefaultTextRunProperties = properties,
-                    TextWrapping = TextWrapping.NoWrap,
-                    DefaultIncrementalTab = 40
-                });
+                new TextParagraphProperties(properties, TextAlignment.Left, TextWrapping.NoWrap, TextTrimming.None));
         }
     }
 
@@ -106,9 +100,9 @@ namespace AvaloniaEdit.Rendering
         /// <summary>
         /// Creates a new FormattedTextRun.
         /// </summary>
-        public FormattedTextRun(FormattedTextElement element, TextRunProperties properties)
+        public FormattedTextRun(FormattedTextElement element, TextStyle properties)
         {
-            Properties = properties ?? throw new ArgumentNullException(nameof(properties));
+            Properties = properties;
             Element = element ?? throw new ArgumentNullException(nameof(element));
         }
 
@@ -118,16 +112,16 @@ namespace AvaloniaEdit.Rendering
         public FormattedTextElement Element { get; }
 
         /// <inheritdoc/>
-        public override StringRange StringRange => default(StringRange);
+        public StringRange StringRange => default(StringRange);
 
         /// <inheritdoc/>
-        public override int Length => Element.VisualLength;
+        public int Length => Element.VisualLength;
 
         /// <inheritdoc/>
         public override bool HasFixedSize => true;
 
         /// <inheritdoc/>
-        public override TextRunProperties Properties { get; }
+        public TextStyle Properties { get; }
 
         public override Size GetSize(double remainingParagraphWidth)
         {
@@ -137,8 +131,8 @@ namespace AvaloniaEdit.Rendering
                 return formattedText.Bounds.Size;
             }
             var text = Element.TextLine;
-            return new Size(text.WidthIncludingTrailingWhitespace,
-                text.Height);
+            return text.LineMetrics.Size;// new Size(text.LineMetrics.Size.Width,//.WidthIncludingTrailingWhitespace,
+                //text.LineMetrics.Size.Height);
         }
 
         /// <inheritdoc/>
@@ -158,7 +152,7 @@ namespace AvaloniaEdit.Rendering
             else
             {
                 //origin.Y -= element.textLine.Baseline;
-                Element.TextLine.Draw(drawingContext, origin);
+                Element.TextLine.Draw(drawingContext.PlatformImpl, origin);
             }
         }
     }

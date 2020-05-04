@@ -51,6 +51,11 @@ namespace AvaloniaEdit.Utils
 			Offset = 0;
 			Count = text.Length;
 		}
+
+		public string GetSegmentText()
+		{
+			return Text.Substring(Offset, Count);
+		}
 		
 		/// <summary>
 		/// Gets the string used for this segment.

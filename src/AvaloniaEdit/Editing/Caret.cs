@@ -414,12 +414,12 @@ namespace AvaloniaEdit.Editing
             var nextPos = visualLine.GetNextCaretPosition(currentPos, LogicalDirection.Forward, CaretPositioningMode.Normal, true);
             var textLine = visualLine.GetTextLine(currentPos);
 
-            Rect r;
+            Rect r = new Rect();
             if (currentPos < visualLine.VisualLength)
             {
                 // If the caret is within the text, use GetTextBounds() for the text being overwritten.
                 // This is necessary to ensure the rectangle is calculated correctly in bidirectional text.
-                r = textLine.GetTextBounds(currentPos, nextPos - currentPos);
+                //TODO: r = textLine.GetTextBounds(currentPos, nextPos - currentPos);
                 r = r.WithY(r.Y + visualLine.GetTextLineVisualYPosition(textLine, VisualYPosition.LineTop));
             }
             else

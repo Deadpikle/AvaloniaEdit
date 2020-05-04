@@ -4,10 +4,11 @@ using System.Linq;
 using Avalonia;
 using AvaloniaEdit.Utils;
 using Avalonia.Media;
+using Avalonia.Media.TextFormatting;
 
 namespace AvaloniaEdit.Text
 {
-    internal sealed class TextLineImpl : TextLine
+    /*internal sealed class TextLineImpl : TextLine
     {
         private const int MaxCharactersPerLine = 10000;
 
@@ -239,5 +240,5 @@ namespace AvaloniaEdit.Text
         {
             return _runs.Select(x => x.TextRun).ToArray();
         }
-    }
+    }*/
 }

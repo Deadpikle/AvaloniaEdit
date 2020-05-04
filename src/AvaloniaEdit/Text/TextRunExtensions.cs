@@ -1,3 +1,7 @@
+using Avalonia.Media.TextFormatting;
+using Avalonia.Utility;
+using System;
+
 namespace AvaloniaEdit.Text
 {
     internal static class TextRunExtensions
@@ -7,7 +11,7 @@ namespace AvaloniaEdit.Text
             switch (textRun)
             {
                 case TextCharacters _:
-                    return textRun.StringRange;
+                    return new StringRange(textRun.Text.ToString(), 0, textRun.Text.Length);// textRun.StringRange;
                 default:
                     return StringRange.Empty;
             }
