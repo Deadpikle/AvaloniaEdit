@@ -140,7 +140,7 @@ namespace AvaloniaEdit.Rendering
             if (newValue != null)
             {
                 TextDocumentWeakEventManager.Changing.AddHandler(newValue, OnChanging);
-                _formatter = TextFormatterFactory.Create();
+                _formatter = Avalonia.Media.TextFormatting.TextFormatter.Current;
                 InvalidateDefaultTextMetrics(); // measuring DefaultLineHeight depends on formatter
                 _heightTree = new HeightTree(newValue, DefaultLineHeight);
                 CachedElements = new TextViewCachedElements();
@@ -1049,7 +1049,7 @@ namespace AvaloniaEdit.Rendering
 
         #region BuildVisualLine
 
-        private TextFormatter _formatter;
+        private Avalonia.Media.TextFormatting.TextFormatter _formatter;
         internal TextViewCachedElements CachedElements;
 
         private TextRunProperties CreateGlobalTextRunProperties()
@@ -1117,6 +1117,7 @@ namespace AvaloniaEdit.Rendering
             var textLines = new List<TextLine>();
             paragraphProperties.Indent = 0;
             paragraphProperties.FirstLineInParagraph = true;
+            Console.WriteLine("{0}", availableSize.Width);
             while (textOffset <= visualLine.VisualLengthWithEndOfLineMarker)
             {
                 var textLine = _formatter.FormatLine(

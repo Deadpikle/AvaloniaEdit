@@ -6,7 +6,7 @@ namespace AvaloniaEdit.Text
 
         public sealed override int Length { get; }
 
-        public sealed override TextRunProperties Properties { get; }
+        public sealed override TextStyle Properties { get; }
 
         public TextEndOfLine(int length) : this(length, null)
         {

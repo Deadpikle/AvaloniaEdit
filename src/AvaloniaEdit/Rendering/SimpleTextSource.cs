@@ -16,6 +16,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using Avalonia.Media.TextFormatting;
 using AvaloniaEdit.Text;
 
 namespace AvaloniaEdit.Rendering
@@ -23,18 +24,18 @@ namespace AvaloniaEdit.Rendering
     internal sealed class SimpleTextSource : TextSource
 	{
 	    private readonly string _text;
-	    private readonly TextRunProperties _properties;
+	    private readonly TextStyle _properties;
 		
-		public SimpleTextSource(string text, TextRunProperties properties)
+		public SimpleTextSource(string text, TextStyle properties)
 		{
 			_text = text;
 			_properties = properties;
 		}
 		
-		public override TextRun GetTextRun(int characterIndex)
+		public override Avalonia.Media.TextFormatting.TextRun GetTextRun(int characterIndex)
 		{
-		    if (characterIndex < _text.Length)
-				return new TextCharacters(_text, characterIndex, _text.Length - characterIndex, _properties);
+			if (characterIndex < _text.Length)
+				return new Avalonia.Media.TextFormatting.TextCharacters(_text, _properties);
 		    return new TextEndOfParagraph(1);
 		}
 	}

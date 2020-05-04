@@ -1,7 +1,9 @@
-﻿namespace AvaloniaEdit.Text
+﻿using Avalonia.Media.TextFormatting;
+
+namespace AvaloniaEdit.Text
 {
-    public abstract class TextSource
+    public abstract class TextSource : ITextSource
     {
-        public abstract TextRun GetTextRun(int characterIndex);
+        public abstract Avalonia.Media.TextFormatting.TextRun GetTextRun(int characterIndex);
     }
 }

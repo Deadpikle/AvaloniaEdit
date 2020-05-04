@@ -1,3 +1,5 @@
+using Avalonia.Media.TextFormatting;
+
 namespace AvaloniaEdit.Text
 {
     public class TextEndOfParagraph : TextEndOfLine
@@ -6,7 +8,7 @@ namespace AvaloniaEdit.Text
         {
         }
 
-        public TextEndOfParagraph(int length, TextRunProperties textRunProperties)
+        public TextEndOfParagraph(int length, TextStyle textRunProperties)
             : base(length, textRunProperties)
         {
         }

@@ -6,6 +6,6 @@
 
         public abstract int Length { get; }
 
-        public abstract TextRunProperties Properties { get; }
+        public abstract TextStyle Properties { get; }
     }
 }
