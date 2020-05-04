@@ -208,10 +208,10 @@ namespace AvaloniaEdit.Rendering
                 var str = GetStringFromTextLine(line);
                 var whitespaceLength = (Math.Abs(str.Length - str.TrimEnd().Length));
                 if (line == lastTextLine && whitespaceLength == 1)
-                    visualEndCol -= 1; // 1 position for the TextEndOfParagraph
+                    visualEndCol -= 1; // 1 position for the TextEndOfParagraph (if it's there
                 else
                 {
-                    visualEndCol -= (Math.Abs(str.Length - str.TrimEnd().Length));
+                    visualEndCol -= whitespaceLength;
                 }
 
                 if (segmentEndVc < visualStartCol)
@@ -248,17 +248,23 @@ namespace AvaloniaEdit.Rendering
                 {
                     if (segmentStartVcInLine <= visualEndCol)
                     {
+                        foreach (Rect b in GetTextBounds(line, segmentStartVcInLine, segmentEndVcInLine - segmentStartVcInLine))
+                        {
+                            double left = b.X - scrollOffset.X;
+                            double right = b.Right - scrollOffset.X;
+                            if (!lastRect.IsEmpty)
+                                yield return lastRect;
+                            // left>right is possible in RTL languages
+                            lastRect = new Rect(Math.Min(left, right), y, Math.Abs(right - left), line.LineMetrics.Size.Height);
+                        }
 
-                        //TODO: var b = line.GetTextBounds(segmentStartVcInLine, segmentEndVcInLine - segmentStartVcInLine);
-
-                        //var b = new Rect(0, 0, line.LineMetrics.Size.Width, line.LineMetrics.Size.Height);
-                        var b = GetTextBounds(line, segmentStartVcInLine, segmentEndVcInLine - segmentStartVcInLine);
+                        /*var b = GetTextBounds(line, segmentStartVcInLine, segmentEndVcInLine - segmentStartVcInLine); // this sort of works
                         var left = b.X - scrollOffset.X;
                         var right = b.Right - scrollOffset.X;
                         if (!lastRect.IsEmpty)
                             yield return lastRect;
                         // left>right is possible in RTL languages
-                        lastRect = new Rect(Math.Min(left, right), y, Math.Abs(right - left), line.LineMetrics.Size.Height);
+                        lastRect = new Rect(Math.Min(left, right), y, Math.Abs(right - left), line.LineMetrics.Size.Height);*/
                     }
                 }
                 // If the segment ends in virtual space, extend the last rectangle with the rectangle the portion of the selection
@@ -330,7 +336,7 @@ namespace AvaloniaEdit.Rendering
         // Returns:
         //     A list of System.Windows.Media.TextFormatting.TextBounds objects representing
         //     the bounding rectangle.
-        public static Rect GetTextBounds(TextLine line, int firstIndex, int textLength)
+        public static List<Rect> GetTextBounds(TextLine line, int firstIndex, int textLength)
         {
 			//foreach (TextBounds b in line.GetTextBounds(segmentStartVCInLine, segmentEndVCInLine - segmentStartVCInLine)) {
             if (textLength == 0) throw new ArgumentOutOfRangeException(nameof(textLength));
@@ -352,10 +358,16 @@ namespace AvaloniaEdit.Rendering
                 textLength = FirstIndex + Length - firstIndex;
             }*/
 
-            var distance = line.GetDistanceFromCharacterHit(new CharacterHit(firstIndex, 0));// GetDistanceFromCharacter(firstIndex, 0);
-            var distanceToLast = line.GetDistanceFromCharacterHit(new CharacterHit(firstIndex + textLength, 0));
-
-            return new Rect(distance, 0.0, distanceToLast - distance, line.LineMetrics.Size.Height);
+            var rects = new List<Rect>();
+            var currentIndex = firstIndex;
+            for (int i = 0; i < textLength; i++)
+            {
+                var distance = line.GetDistanceFromCharacterHit(new CharacterHit(currentIndex, 0));// GetDistanceFromCharacter(firstIndex, 0);
+                var distanceToLast = line.GetDistanceFromCharacterHit(new CharacterHit(currentIndex + 1, 0));
+                currentIndex++;
+                rects.Add(new Rect(distance, 0.0, distanceToLast - distance, line.LineMetrics.Size.Height));
+            }
+            return rects;
         }
 
         private readonly PathFigures _figures = new PathFigures();
