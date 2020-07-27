@@ -1922,24 +1922,24 @@ namespace AvaloniaEdit.Rendering
         }
 
         /// <inheritdoc/>
-        protected override void OnPropertyChanged<T>(AvaloniaProperty<T> property, Optional<T> oldValue, BindingValue<T> newValue, BindingPriority priority)
+        protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
         {
-            base.OnPropertyChanged(property, oldValue, newValue, priority);
+            base.OnPropertyChanged(change);
 
-            if (property == TemplatedControl.ForegroundProperty
-                     || property == NonPrintableCharacterBrushProperty
-                     || property == LinkTextBackgroundBrushProperty
-                     || property == LinkTextForegroundBrushProperty
-                     || property == LinkTextUnderlineProperty)
+            if (change.Property == TemplatedControl.ForegroundProperty
+                     || change.Property == NonPrintableCharacterBrushProperty
+                     || change.Property == LinkTextBackgroundBrushProperty
+                     || change.Property == LinkTextForegroundBrushProperty
+                     || change.Property == LinkTextUnderlineProperty)
             {
                 // changing brushes requires recreating the cached elements
                 RecreateCachedElements();
                 Redraw();
             }
-            if (property == TemplatedControl.FontFamilyProperty
-                || property == TemplatedControl.FontSizeProperty
-                || property == TemplatedControl.FontStyleProperty
-                || property == TemplatedControl.FontWeightProperty)
+            if (change.Property == TemplatedControl.FontFamilyProperty
+                || change.Property == TemplatedControl.FontSizeProperty
+                || change.Property == TemplatedControl.FontStyleProperty
+                || change.Property == TemplatedControl.FontWeightProperty)
             {
                 // changing font properties requires recreating cached elements
                 RecreateCachedElements();
@@ -1947,15 +1947,15 @@ namespace AvaloniaEdit.Rendering
                 InvalidateDefaultTextMetrics();
                 Redraw();
             }
-            if (property == ColumnRulerPenProperty)
+            if (change.Property == ColumnRulerPenProperty)
             {
                 _columnRulerRenderer.SetRuler(Options.ColumnRulerPosition, ColumnRulerPen);
             }
-            if (property == CurrentLineBorderProperty)
+            if (change.Property == CurrentLineBorderProperty)
             {
                 _currentLineHighlighRenderer.BorderPen = CurrentLineBorder;
             }
-            if (property == CurrentLineBackgroundProperty)
+            if (change.Property == CurrentLineBackgroundProperty)
             {
                 _currentLineHighlighRenderer.BackgroundBrush = CurrentLineBackground;
             }

@@ -109,10 +109,11 @@ namespace AvaloniaEdit.Folding
         }
 
         /// <inheritdoc/>
-        protected override void OnPropertyChanged<T>(AvaloniaProperty<T> property, Optional<T> oldValue, BindingValue<T> newValue, BindingPriority priority)
+        protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
         {
-            base.OnPropertyChanged(property, oldValue, newValue, priority);
-            if (property == IsPointerOverProperty)
+            base.OnPropertyChanged(change);
+
+            if (change.Property == IsPointerOverProperty)
             {
                 InvalidateVisual();
             }

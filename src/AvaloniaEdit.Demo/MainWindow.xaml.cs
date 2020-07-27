@@ -28,6 +28,7 @@ namespace AvaloniaEdit.Demo
         private CompletionWindow _completionWindow;
         private OverloadInsightWindow _insightWindow;
         private Button _addControlBtn;
+        private Button _appendControlBtn;
         private Button _clearControlBtn;
         private ElementGenerator _generator = new ElementGenerator();
         private IPopupImpl impl;
@@ -47,6 +48,8 @@ namespace AvaloniaEdit.Demo
 
             _addControlBtn = this.FindControl<Button>("addControlBtn");
             _addControlBtn.Click += _addControlBtn_Click;
+            _appendControlBtn = this.FindControl<Button>("appendControlBtn");
+            _appendControlBtn.Click += _appendControlBtn_Click;
 
             _clearControlBtn = this.FindControl<Button>("clearControlBtn");
             _clearControlBtn.Click += _clearControlBtn_Click; ;
@@ -63,13 +66,39 @@ namespace AvaloniaEdit.Demo
             }, RoutingStrategies.Bubble, true);
         }
 
+        private void _appendControlBtn_Click(object sender, RoutedEventArgs e)
+        {
+            _textEditor.AppendText("hi1");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi1");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi1");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi1");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi1");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi1");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi1");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi1");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi1");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi1");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi1");
+            _textEditor.AppendText(Environment.NewLine);
+        }
+
         private void InitializeComponent()
         {
             // TODO: iOS does not support dynamically loading assemblies
             // so we must refer to this resource DLL statically. For
             // now I am doing that here. But we need a better solution!!
             var theme = new Avalonia.Themes.Default.DefaultTheme();
-            theme.FindResource("Button");
+            //theme.FindResource("Button");
             AvaloniaXamlLoader.Load(this);
         }
 

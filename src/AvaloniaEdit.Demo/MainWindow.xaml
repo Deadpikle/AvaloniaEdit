@@ -12,6 +12,7 @@
                     Spacing="5"
                     Margin="3">
             <Button Content="Copy" />
+          <Button Name="appendControlBtn" Content="append Button" />
             <Button Name="addControlBtn" Content="Add Button" />
             <Button Name="clearControlBtn" Content="Clear Buttons" />
         </StackPanel>

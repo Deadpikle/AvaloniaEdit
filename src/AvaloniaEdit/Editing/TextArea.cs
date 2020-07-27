@@ -109,9 +109,9 @@ namespace AvaloniaEdit.Editing
             //});
         }
 
-        protected override void OnTemplateApplied(TemplateAppliedEventArgs e)
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnTemplateApplied(e);
+            base.OnApplyTemplate(e);
 
             if (e.NameScope.Find("PART_CP") is ContentPresenter contentPresenter)
             {
@@ -1000,17 +1000,17 @@ namespace AvaloniaEdit.Editing
         #endregion
 
         /// <inheritdoc/>
-        protected override void OnPropertyChanged<T>(AvaloniaProperty<T> property, Optional<T> oldValue, BindingValue<T> newValue, BindingPriority priority)
+        protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
         {
-            base.OnPropertyChanged(property, oldValue, newValue, priority);
-            if (property == SelectionBrushProperty
-                || property == SelectionBorderProperty
-                || property == SelectionForegroundProperty
-                || property == SelectionCornerRadiusProperty)
+            base.OnPropertyChanged(change);
+            if (change.Property == SelectionBrushProperty
+                || change.Property == SelectionBorderProperty
+                || change.Property == SelectionForegroundProperty
+                || change.Property == SelectionCornerRadiusProperty)
             {
                 TextView.Redraw();
             }
-            else if (property == OverstrikeModeProperty)
+            else if (change.Property == OverstrikeModeProperty)
             {
                 Caret.UpdateIfVisible();
             }
