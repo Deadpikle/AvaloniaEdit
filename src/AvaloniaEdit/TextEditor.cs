@@ -688,6 +688,7 @@ namespace AvaloniaEdit
             ApplyTemplate(); // ensure scrollViewer is created
             //if (scrollViewer != null)
             //    scrollViewer.ScrollToEnd();
+            ScrollViewer?.ScrollToEnd();
         }
 
         /// <summary>
@@ -698,6 +699,7 @@ namespace AvaloniaEdit
             ApplyTemplate(); // ensure scrollViewer is created
             //if (scrollViewer != null)
             //    scrollViewer.ScrollToHome();
+            ScrollViewer?.ScrollToHome();
         }
 
         /// <summary>
