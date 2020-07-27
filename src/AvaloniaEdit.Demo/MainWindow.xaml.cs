@@ -28,6 +28,7 @@ namespace AvaloniaEdit.Demo
         private CompletionWindow _completionWindow;
         private OverloadInsightWindow _insightWindow;
         private Button _addControlBtn;
+        private Button _appendTextBtn;
         private Button _clearControlBtn;
         private ElementGenerator _generator = new ElementGenerator();
         private IPopupImpl impl;
@@ -50,6 +51,9 @@ namespace AvaloniaEdit.Demo
             _clearControlBtn = this.FindControl<Button>("clearControlBtn");
             _clearControlBtn.Click += _clearControlBtn_Click; ;
 
+            _appendTextBtn = this.FindControl<Button>("appendTextBtn");
+            _appendTextBtn.Click += _appendTextBtn_Click;
+
             _textEditor.TextArea.TextView.ElementGenerators.Add(_generator);
 
             impl = PlatformManager.CreateWindow().CreatePopup();
@@ -60,6 +64,26 @@ namespace AvaloniaEdit.Demo
                 if (i.Delta.Y > 0) _textEditor.FontSize++;
                 else _textEditor.FontSize = _textEditor.FontSize > 1 ? _textEditor.FontSize - 1 : 1;
             }, RoutingStrategies.Bubble, true);
+        }
+
+        private void _appendTextBtn_Click(object sender, RoutedEventArgs e)
+        {
+            _textEditor.AppendText("hi1!");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi2!");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi3!");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi4!");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi5!");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi6!");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi7!");
+            _textEditor.AppendText(Environment.NewLine);
+            _textEditor.AppendText("hi8!");
+            _textEditor.AppendText(Environment.NewLine);
         }
 
         private void InitializeComponent()
